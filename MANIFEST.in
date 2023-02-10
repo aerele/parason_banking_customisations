@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include parason_banking_customisations *.css
+recursive-include parason_banking_customisations *.csv
+recursive-include parason_banking_customisations *.html
+recursive-include parason_banking_customisations *.ico
+recursive-include parason_banking_customisations *.js
+recursive-include parason_banking_customisations *.json
+recursive-include parason_banking_customisations *.md
+recursive-include parason_banking_customisations *.png
+recursive-include parason_banking_customisations *.py
+recursive-include parason_banking_customisations *.svg
+recursive-include parason_banking_customisations *.txt
+recursive-exclude parason_banking_customisations *.pyc
