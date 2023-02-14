@@ -29,7 +29,11 @@ app_license = "MIT"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-# doctype_js = {"doctype" : "public/js/doctype.js"}
+doctype_js = {
+	"Bank Account" : "public/js/bank_account.js",
+	"Payment Request": "public/js/payment_request.js",
+	"Payment Order" : "public/js/payment_order.js",
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -102,13 +106,21 @@ app_license = "MIT"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-#	"*": {
-#		"on_update": "method",
-#		"on_cancel": "method",
-#		"on_trash": "method"
-#	}
-# }
+doc_events = {
+	"Bank Account": {
+		"validate": "parason_banking_customisations.parason_banking_customisations.doc_events.bank_account.validate_ifsc_code",
+	},
+	"Purchase Invoice": {
+		"on_submit": "parason_banking_customisations.parason_banking_customisations.doc_events.purchase_invoice.hold_invoice_for_payment",
+		"on_update_after_submit": "parason_banking_customisations.parason_banking_customisations.doc_events.purchase_invoice.unblock_by_data_import",
+	},
+	"Payment Request": {
+		"validate": "parason_banking_customisations.parason_banking_customisations.doc_events.payment_request.valdidate_bank_for_wire_transfer",
+	},
+	"Payment Order": {
+		"validate": "parason_banking_customisations.parason_banking_customisations.doc_events.payment_order.validate_summary",
+	}
+}
 
 # Scheduled Tasks
 # ---------------
