@@ -1,7 +1,13 @@
 frappe.ui.form.on('Payment Order', {
+	onload(frm) {
+		frm.set_df_property("payment_order_type", "options", [""].concat(["Payment Request", "Payment Entry", "Purchase Invoice"]));
+		frm.refresh_field("payment_order_type");
+	},
 	refresh(frm) {
 		frm.remove_custom_button("Payment Entry", "Get Payments from");
 		frm.remove_custom_button("Payment Request", "Get Payments from");
+		frm.set_df_property("payment_order_type", "options", [""].concat(["Payment Request", "Payment Entry", "Purchase Invoice"]));
+		frm.refresh_field("payment_order_type");
 		if (frm.doc.docstatus == 0) {
 			frm.add_custom_button(__('Payment Request'), function() {
 				frm.trigger("remove_row_if_empty");
@@ -35,18 +41,45 @@ frappe.ui.form.on('Payment Order', {
 					},
 					get_query_filters: {
 						docstatus: 1,
-						status: ["not in", ["Hold on Payments"]],
+						status: ["not in", ["On Hold"]],
 						due_date : ["<=", frm.doc.posting_date],
 						outstanding: [">", 0]
 					}
 				});
 			}, __("Get from"));
-			frm.trigger("remove_button")
+		};
+		if (frm.doc.docstatus===1 && frm.doc.payment_order_type==='Payment Request') {
+			frm.remove_custom_button(__('Create Payment Entries'));
+		}
+	},
+	after_workflow_action(frm) {
+		if (frm.doc.workflow_state == "Approved") {
+			frappe.call({
+				method: "parason_banking_customisations.parason_banking_customisations.doc_events.payment_order.make_payment_entries",
+				args: {
+					docname: frm.doc.name,
+				},
+				callback: function(r) {
+					if(r.message) {
+						//
+					}
+				}
+			});
+			frappe.call({
+				method: "parason_banking_customisations.parason_banking_customisations.doc_events.payment_order.log_payload",
+				args: {
+					docname: frm.doc.name,
+				},
+				callback: function(r) {
+					if(r.message) {
+						//
+					}
+				}
+			});
 		}
 	},
 	remove_button: function(frm) {
 		// remove custom button of order type that is not imported
-
 		let label = ["Payment Request", "Purchase Invoice"];
 
 		if (frm.doc.references.length > 0 && frm.doc.payment_order_type) {
@@ -62,6 +95,7 @@ frappe.ui.form.on('Payment Order', {
 			method: "parason_banking_customisations.parason_banking_customisations.doc_events.payment_order.get_supplier_summary",
 			args: {
 				references: frm.doc.references,
+				company_bank_account: frm.doc.company_bank_account
 			},
 			freeze: true,
 			callback: function(r) {
@@ -72,7 +106,9 @@ frappe.ui.form.on('Payment Order', {
 						let row = frm.add_child("summary");
 						row.supplier = summary_data[i].supplier;
 						row.amount = summary_data[i].amount;
-						// frm.trigger('mode_of_transfer');
+						row.bank_account = summary_data[i].bank_account;
+						row.account = summary_data[i].account;
+						row.mode_of_transfer = summary_data[i].mode_of_transfer;
 					}
 					frm.refresh_field("summary");
 				}

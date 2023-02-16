@@ -1,0 +1,89 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:bank_account",
+ "creation": "2023-02-16 10:15:10.408374",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "bank",
+  "column_break_7bgkx",
+  "bank_account",
+  "aes_key",
+  "section_break_prkwq",
+  "modes",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "bank",
+   "fieldtype": "Link",
+   "label": "Bank",
+   "options": "Bank"
+  },
+  {
+   "fieldname": "column_break_7bgkx",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "bank_account",
+   "fieldtype": "Link",
+   "label": "Bank Account",
+   "options": "Bank Account",
+   "unique": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Bank Integration Settings",
+   "print_hide": 1,
+   "read_only": 1
+  },
+  {
+   "fieldname": "modes",
+   "fieldtype": "Table",
+   "label": "Modes",
+   "options": "Bank Integration Mode"
+  },
+  {
+   "fieldname": "section_break_prkwq",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "aes_key",
+   "fieldtype": "Password",
+   "label": "AES Key"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2023-02-16 10:42:35.876219",
+ "modified_by": "Administrator",
+ "module": "Parason Banking Customisations",
+ "name": "Bank Integration Settings",
+ "name_case": "Title Case",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

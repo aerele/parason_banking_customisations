@@ -10,7 +10,11 @@
  "field_order": [
   "mode",
   "minimum_limit",
-  "maximum_limit"
+  "maximum_limit",
+  "section_break_bstji",
+  "is_bank_specific",
+  "bank",
+  "bank_account"
  ],
  "fields": [
   {
@@ -34,11 +38,37 @@
    "in_list_view": 1,
    "label": " Maximum Limit",
    "reqd": 1
+  },
+  {
+   "fieldname": "section_break_bstji",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_bank_specific",
+   "fieldtype": "Check",
+   "label": "Is Bank Specific"
+  },
+  {
+   "depends_on": "eval:doc.is_bank_specific",
+   "fieldname": "bank",
+   "fieldtype": "Link",
+   "label": "Bank",
+   "mandatory_depends_on": "eval:doc.is_bank_specific",
+   "options": "Bank"
+  },
+  {
+   "depends_on": "eval:doc.is_bank_specific",
+   "fieldname": "bank_account",
+   "fieldtype": "Link",
+   "label": "Bank Account",
+   "mandatory_depends_on": "eval:doc.is_bank_specific",
+   "options": "Bank Account"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-02-14 08:33:26.522508",
+ "modified": "2023-02-16 04:46:52.872271",
  "modified_by": "Administrator",
  "module": "Parason Banking Customisations",
  "name": "Mode of Transfer",

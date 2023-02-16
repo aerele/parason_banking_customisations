@@ -33,6 +33,7 @@ doctype_js = {
 	"Bank Account" : "public/js/bank_account.js",
 	"Payment Request": "public/js/payment_request.js",
 	"Payment Order" : "public/js/payment_order.js",
+	"Purchase Invoice" : "public/js/purchase_invoice.js",
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -69,6 +70,8 @@ doctype_js = {
 
 # before_install = "parason_banking_customisations.install.before_install"
 # after_install = "parason_banking_customisations.install.after_install"
+after_install = "parason_banking_customisations.parason_banking_customisations.install.after_install"
+
 
 # Uninstallation
 # ------------
@@ -102,6 +105,10 @@ doctype_js = {
 #	"ToDo": "custom_app.overrides.CustomToDo"
 # }
 
+override_doctype_class = {
+	"Payment Order": "parason_banking_customisations.parason_banking_customisations.override.payment_order.CustomPaymentOrder",
+}
+
 # Document Events
 # ---------------
 # Hook on document methods and events
@@ -112,13 +119,13 @@ doc_events = {
 	},
 	"Purchase Invoice": {
 		"on_submit": "parason_banking_customisations.parason_banking_customisations.doc_events.purchase_invoice.hold_invoice_for_payment",
-		"on_update_after_submit": "parason_banking_customisations.parason_banking_customisations.doc_events.purchase_invoice.unblock_by_data_import",
+		"on_update_after_submit": "parason_banking_customisations.parason_banking_customisations.doc_events.purchase_invoice.on_update_after_submit",
 	},
 	"Payment Request": {
 		"validate": "parason_banking_customisations.parason_banking_customisations.doc_events.payment_request.valdidate_bank_for_wire_transfer",
 	},
 	"Payment Order": {
-		"validate": "parason_banking_customisations.parason_banking_customisations.doc_events.payment_order.validate_summary",
+		"validate": "parason_banking_customisations.parason_banking_customisations.doc_events.payment_order.validate",
 	}
 }
 

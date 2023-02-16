@@ -29,6 +29,8 @@ def make_payment_order(source_name, target_doc=None):
 				"mode_of_payment": source.mode_of_payment,
 				"bank_account": source.bank_account,
 				"account": account,
+				"is_adhoc": source.is_adhoc,
+				"plant": source.plant
 			},
 		)
 
