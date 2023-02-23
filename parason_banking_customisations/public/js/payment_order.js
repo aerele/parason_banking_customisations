@@ -41,7 +41,7 @@ frappe.ui.form.on('Payment Order', {
 					},
 					get_query_filters: {
 						docstatus: 1,
-						status: ["not in", ["On Hold"]],
+						on_hold: ["!=", 1],
 						due_date : ["<=", frm.doc.posting_date],
 						outstanding: [">", 0]
 					}
@@ -53,30 +53,30 @@ frappe.ui.form.on('Payment Order', {
 		}
 	},
 	after_workflow_action(frm) {
-		if (frm.doc.workflow_state == "Approved") {
-			frappe.call({
-				method: "parason_banking_customisations.parason_banking_customisations.doc_events.payment_order.make_payment_entries",
-				args: {
-					docname: frm.doc.name,
-				},
-				callback: function(r) {
-					if(r.message) {
-						//
-					}
-				}
-			});
-			frappe.call({
-				method: "parason_banking_customisations.parason_banking_customisations.doc_events.payment_order.log_payload",
-				args: {
-					docname: frm.doc.name,
-				},
-				callback: function(r) {
-					if(r.message) {
-						//
-					}
-				}
-			});
-		}
+		// if (frm.doc.workflow_state == "Approved") {
+		// 	frappe.call({
+		// 		method: "parason_banking_customisations.parason_banking_customisations.doc_events.payment_order.make_payment_entries",
+		// 		args: {
+		// 			docname: frm.doc.name,
+		// 		},
+		// 		callback: function(r) {
+		// 			if(r.message) {
+		// 				//
+		// 			}
+		// 		}
+		// 	});
+		// 	frappe.call({
+		// 		method: "parason_banking_customisations.parason_banking_customisations.doc_events.payment_order.log_payload",
+		// 		args: {
+		// 			docname: frm.doc.name,
+		// 		},
+		// 		callback: function(r) {
+		// 			if(r.message) {
+		// 				//
+		// 			}
+		// 		}
+		// 	});
+		// }
 	},
 	remove_button: function(frm) {
 		// remove custom button of order type that is not imported
@@ -109,6 +109,7 @@ frappe.ui.form.on('Payment Order', {
 						row.bank_account = summary_data[i].bank_account;
 						row.account = summary_data[i].account;
 						row.mode_of_transfer = summary_data[i].mode_of_transfer;
+						row.plant = summary_data[i].plant;
 					}
 					frm.refresh_field("summary");
 				}

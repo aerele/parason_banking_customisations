@@ -14,14 +14,17 @@ def get_supplier_summary(references, company_bank_account):
 	summary = {}
 
 	for reference in references:
-		if reference["supplier"] in summary:
-			summary[reference["supplier"]] += reference["amount"]
+		summary_key = reference["supplier"] + "{}" +  reference["plant"]
+		if summary_key  in summary:
+			summary[summary_key] += reference["amount"]
 		else:
-			summary[reference["supplier"]] = reference["amount"]
+			summary[summary_key] = reference["amount"]
 	result = []
 	for k, v in summary.items():
+		sum_plant = k.split("{}")
 		data = {
-			"supplier": k,
+			"supplier": sum_plant[0],
+			"plant": sum_plant[1],
 			"amount": v
 		}
 		result.append(data)
@@ -62,18 +65,7 @@ def validate_supplier_bank_accounts(references):
 				continue
 			if supplier_account[row.supplier] != row.account:
 				frappe.throw(f"{row.supplier} is having two accounts to reconcile - {supplier_account[row.supplier]}, {row.account}. Make another payment order for one of them")
-	
-	first_plant = None
-	for row in references:
-		row = frappe._dict(row)
-		if not row.plant:
-			continue
 
-		if not first_plant:
-			first_plant = row.plant
-		else:
-			if first_plant != row.plant:
-				frappe.throw(f"Multiple accounting dimensions involved - {first_plant} and {row.plant}")
 	return supplier_bank_account, supplier_account
 
 
@@ -182,6 +174,7 @@ def make_payment_entries(docname):
 		pe.set_missing_values()
 		pe.insert(ignore_permissions=True)
 		pe.submit()
+		frappe.db.set_value("Payment Order Summary", row.name, "payment_entry", pe.name)
 
 
 @frappe.whitelist()
