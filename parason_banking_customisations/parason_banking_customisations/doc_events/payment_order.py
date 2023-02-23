@@ -150,7 +150,7 @@ def make_payment_entries(docname):
 
 		if not is_adhoc:
 			for reference in payment_order_doc.references:
-				if reference.supplier == row.supplier:
+				if reference.supplier == row.supplier and reference.plant == row.plant:
 					pe.append(
 						"references",
 						{
