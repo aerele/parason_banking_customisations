@@ -110,11 +110,9 @@ def make_payment_entries(docname):
 	# if not doc.is_ad_hoc:
 	# 	ref_doc = frappe.get_doc(doc.reference_doctype, doc.reference_name)
 	# party_account = frappe.db.get_value("Payment Request Type", doc.payment_type, "account_paid_to")
-	plant = None
 	is_advance_payment = "Yes"
 	is_adhoc = 0
 	for ref in payment_order_doc.references:
-		plant = ref.plant
 		if ref.reference_doctype == "Purchase Invoice":
 			is_advance_payment = "No"
 		if ref.is_adhoc:
@@ -127,7 +125,7 @@ def make_payment_entries(docname):
 		pe.payment_type = "Pay"
 		pe.payment_entry_type = "Pay"
 		pe.company = payment_order_doc.company
-		pe.plant = plant
+		pe.plant = row.plant
 		pe.posting_date = nowdate()
 		pe.mode_of_payment = "Wire Transfer"
 		pe.party_type = "Supplier"
