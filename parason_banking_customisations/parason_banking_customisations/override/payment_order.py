@@ -12,3 +12,6 @@ class CustomPaymentOrder(PaymentOrder):
 				pe_doc = frappe.get_doc("Payment Entry", row.payment_entry)
 				if pe_doc.docstatus == 1:
 					pe_doc.cancel()
+
+	def on_cancel(self):
+		pass
