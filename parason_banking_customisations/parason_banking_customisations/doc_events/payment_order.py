@@ -40,6 +40,16 @@ def get_supplier_summary(references, company_bank_account):
 			mode_of_transfer = frappe.db.get_value("Mode of Transfer", {"is_bank_specific": 1, "bank": supplier_bank})
 			if mode_of_transfer:
 				row["mode_of_transfer"] = mode_of_transfer
+			else:
+				mot = frappe.db.get_value("Mode of Transfer", {
+					"minimum_limit": ["<=", row["amount"]], 
+					"maximum_limit": [">", row["amount"]],
+					"is_bank_specific": 0
+					}, 
+					order_by = "priority asc")
+				if mot:
+					row["mode_of_transfer"] = mot
+
 
 	return result
 

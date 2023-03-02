@@ -14,7 +14,12 @@
   "section_break_bstji",
   "is_bank_specific",
   "bank",
-  "bank_account"
+  "bank_account",
+  "section_break_lfdjw",
+  "start_time",
+  "end_time",
+  "column_break_45hcw",
+  "priority"
  ],
  "fields": [
   {
@@ -64,11 +69,35 @@
    "label": "Bank Account",
    "mandatory_depends_on": "eval:doc.is_bank_specific",
    "options": "Bank Account"
+  },
+  {
+   "fieldname": "section_break_lfdjw",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "start_time",
+   "fieldtype": "Time",
+   "label": "Start Time"
+  },
+  {
+   "fieldname": "end_time",
+   "fieldtype": "Time",
+   "label": "End Time"
+  },
+  {
+   "fieldname": "column_break_45hcw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "priority",
+   "fieldtype": "Select",
+   "label": "Priority",
+   "options": "\n1\n2\n3\n4\n5\n6"
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-02-16 04:46:52.872271",
+ "modified": "2023-03-02 17:13:09.498303",
  "modified_by": "Administrator",
  "module": "Parason Banking Customisations",
  "name": "Mode of Transfer",
