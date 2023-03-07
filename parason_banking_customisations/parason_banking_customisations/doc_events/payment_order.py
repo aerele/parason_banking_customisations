@@ -112,6 +112,25 @@ def validate_summary(self, method):
 
 
 @frappe.whitelist()
+def make_bank_payment(docname):
+	payment_order_doc = frappe.get_doc("Payment Order", docname)
+	on_hold_count = 0
+	approved_count = 0
+	for i in payment_order_doc.summary:
+		if i.hold:
+			on_hold_count += 1
+		elif i.approve:
+			approved_count += 1
+	if on_hold_count:
+		frappe.db.set_value("Payment Order", docname, "status", "Partially Initiated")
+	else:
+		frappe.db.set_value("Payment Order", docname, "status", "Initiated")
+	#validate_payment(docname)
+	#process_payment(docname)
+	#status = update_payment_status(docname)
+	return {"message": f"{approved_count} payments initiated"}
+
+@frappe.whitelist()
 def make_payment_entries(docname):
 	payment_order_doc = frappe.get_doc("Payment Order", docname)
 	"""create entry"""

@@ -51,6 +51,31 @@ frappe.ui.form.on('Payment Order', {
 		if (frm.doc.docstatus===1 && frm.doc.payment_order_type==='Payment Request') {
 			frm.remove_custom_button(__('Create Payment Entries'));
 		}
+		if (frappe.user.has_role('Bank Payment Approver - 02')) {
+			if (frm.has_perm('write')) {
+				var approved_payments_count = 0;
+				for(var i = 0; i < frm.doc.summary.length; i++) {
+					if (frm.doc.summary[i].approve == 1) {
+						approved_payments_count += 1
+					}
+				}
+				if (approved_payments_count > 0) {
+					frm.add_custom_button(__('Initiate Payment'), function() {
+						frappe.call({
+							method: "parason_banking_customisations.parason_banking_customisations.doc_events.payment_order.make_bank_payment",
+							args: {
+								docname: frm.doc.name,
+							},
+							callback: function(r) {
+								if(r.message) {
+									frappe.msgprint(r.message)
+								}
+							}
+						});
+					});
+				}
+			}
+		}
 	},
 	after_workflow_action(frm) {
 		// if (frm.doc.workflow_state == "Approved") {
@@ -91,6 +116,10 @@ frappe.ui.form.on('Payment Order', {
 		}
 	},
 	get_summary: function(frm) {
+		if (frm.doc.docstatus > 0) {
+			frappe.msgprint("Not allowed to change post submission");
+			return
+		}
 		frappe.call({
 			method: "parason_banking_customisations.parason_banking_customisations.doc_events.payment_order.get_supplier_summary",
 			args: {
