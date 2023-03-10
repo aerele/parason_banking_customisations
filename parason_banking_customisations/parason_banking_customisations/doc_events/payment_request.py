@@ -33,6 +33,7 @@ def make_payment_order(source_name, target_doc=None):
 				"plant": source.plant
 			},
 		)
+		target.status = "Pending"
 
 	doclist = get_mapped_doc(
 		"Payment Request",
