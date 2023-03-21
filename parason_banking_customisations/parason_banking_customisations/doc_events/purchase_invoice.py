@@ -1,4 +1,6 @@
 import frappe
+from frappe.utils import today
+
 
 def hold_invoice_for_payment(self, method):
 	self.block_invoice("Hold on Payments")
@@ -25,6 +27,8 @@ def make_payment_order(source_name, target_doc=None):
 		
 		if not bank_account:
 			frappe.throw(f"{source.supplier} does not have an default & approved bank account")
+
+		target.posting_date = today()
 		target.append(
 			"references",
 			{
