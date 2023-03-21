@@ -17,6 +17,7 @@ class CustomPaymentOrder(PaymentOrder):
 				if pe_doc.docstatus == 1:
 					pe_doc.cancel()
 				frappe.db.set_value("Payment Order Summary", row.name, "payment_status", "Rejected")
+				frappe.db.set_value("Payment Order Summary", row.name, "payment_rejected", 1)
 			elif row.hold:
 				hold_count += 1
 				frappe.db.set_value("Payment Order Summary", row.name, "payment_status", "On Hold")

@@ -18,7 +18,9 @@
   "approve",
   "hold",
   "initial_rejection",
-  "final_rejection"
+  "final_rejection",
+  "payment_initiated",
+  "payment_rejected"
  ],
  "fields": [
   {
@@ -95,7 +97,8 @@
    "fieldtype": "Check",
    "in_list_view": 1,
    "label": "Reject",
-   "permlevel": 1
+   "permlevel": 1,
+   "read_only_depends_on": "eval: (doc.payment_initiated) || (doc.approve) || (doc.hold) || (doc.final_rejection) || (doc.payment_rejected)"
   },
   {
    "allow_on_submit": 1,
@@ -105,7 +108,8 @@
    "fieldtype": "Check",
    "in_list_view": 1,
    "label": "Final Reject",
-   "permlevel": 2
+   "permlevel": 2,
+   "read_only_depends_on": "eval: (doc.payment_initiated) || (doc.payment_rejected)"
   },
   {
    "allow_on_submit": 1,
@@ -115,7 +119,8 @@
    "fieldtype": "Check",
    "in_list_view": 1,
    "label": "Hold",
-   "permlevel": 1
+   "permlevel": 1,
+   "read_only_depends_on": "eval: (doc.payment_initiated) || (doc.initial_rejection) || (doc.approve) || (doc.final_rejection) || (doc.payment_rejected)"
   },
   {
    "allow_on_submit": 1,
@@ -125,13 +130,33 @@
    "fieldtype": "Check",
    "in_standard_filter": 1,
    "label": "Approve",
-   "permlevel": 1
+   "permlevel": 1,
+   "read_only_depends_on": "eval: (doc.payment_initiated) || (doc.initial_rejection) || (doc.hold) || (doc.final_rejection) || (doc.payment_rejected)"
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "fieldname": "payment_initiated",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Payment Initiated",
+   "permlevel": 2,
+   "read_only": 1
+  },
+  {
+   "allow_on_submit": 1,
+   "default": "0",
+   "fieldname": "payment_rejected",
+   "fieldtype": "Check",
+   "hidden": 1,
+   "label": "Payment Rejected",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-03-07 08:50:02.418182",
+ "modified": "2023-03-21 07:53:45.524079",
  "modified_by": "Administrator",
  "module": "Parason Banking Customisations",
  "name": "Payment Order Summary",

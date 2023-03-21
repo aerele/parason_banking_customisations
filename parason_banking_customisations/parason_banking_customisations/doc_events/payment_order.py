@@ -117,10 +117,15 @@ def make_bank_payment(docname):
 	on_hold_count = 0
 	approved_count = 0
 	for i in payment_order_doc.summary:
+		if i.payment_initiated:
+			continue
+
 		if i.hold:
 			on_hold_count += 1
 		elif i.approve:
 			approved_count += 1
+			frappe.db.set_value("Payment Order Summary", i.name, "payment_initiated", 1)
+
 	if on_hold_count:
 		frappe.db.set_value("Payment Order", docname, "status", "Partially Initiated")
 	else:
