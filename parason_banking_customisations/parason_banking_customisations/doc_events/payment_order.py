@@ -120,6 +120,9 @@ def make_bank_payment(docname):
 		if i.payment_initiated:
 			continue
 
+		if i.initial_rejection or i.final_rejection or i.payment_rejected:
+			continue
+
 		if i.hold:
 			on_hold_count += 1
 		elif i.approve:
@@ -128,7 +131,7 @@ def make_bank_payment(docname):
 
 	if on_hold_count:
 		frappe.db.set_value("Payment Order", docname, "status", "Partially Initiated")
-	else:
+	elif approved_count:
 		frappe.db.set_value("Payment Order", docname, "status", "Initiated")
 	#validate_payment(docname)
 	#process_payment(docname)
