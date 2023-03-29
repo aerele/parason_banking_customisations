@@ -7,6 +7,10 @@ class CustomPaymentOrder(PaymentOrder):
 		make_payment_entries(self.name)
 		frappe.db.set_value("Payment Order", self.name, "status", "Pending Approval")
 
+		for ref in self.references:
+			if hasattr(ref, "payment_request"):
+				frappe.db.set_value("Payment Request", ref.payment_request, "status", "Payment Ordered")
+
 	def on_update_after_submit(self):
 		hold_count = 0
 		rejected_acount = 0

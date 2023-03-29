@@ -21,7 +21,7 @@ frappe.ui.form.on('Payment Order', {
 					},
 					get_query_filters: {
 						docstatus: 1,
-						status: ["in", ["Initiated", "Partially Paid"]],
+						status: ["in", ["Initiated"]],
 						mode_of_payment: "Wire Transfer",
 						transaction_date : ["<=", frm.doc.posting_date]
 					}
@@ -52,7 +52,7 @@ frappe.ui.form.on('Payment Order', {
 			frm.remove_custom_button(__('Create Payment Entries'));
 		}
 		if (frappe.user.has_role('Bank Payment Approver - 02')) {
-			if (frm.has_perm('write')) {
+			if (frm.has_perm('write') && 'summary' in frm.doc) {
 				var approved_payments_count = 0;
 				for(var i = 0; i < frm.doc.summary.length; i++) {
 					if (frm.doc.summary[i].approve == 1) {
