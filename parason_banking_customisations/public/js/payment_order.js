@@ -198,8 +198,6 @@ frappe.ui.form.on('Payment Order', {
 				}
 				frm.dirty();
 				frm.refresh_fields();
-
-				frm.reload_doc();
 			}
 		});
 	}
