@@ -1,6 +1,5 @@
 {
  "actions": [],
- "allow_rename": 1,
  "autoname": "field:status_name",
  "creation": "2023-04-01 10:12:47.592752",
  "default_view": "List",
@@ -23,7 +22,7 @@
  "in_create": 1,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2023-04-03 02:04:21.223527",
+ "modified": "2023-04-03 02:06:56.142011",
  "modified_by": "Administrator",
  "module": "Parason Banking Customisations",
  "name": "Payment Order Approval Status",
