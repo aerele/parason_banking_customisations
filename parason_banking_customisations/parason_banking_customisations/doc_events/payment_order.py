@@ -113,7 +113,7 @@ def validate_summary(self, method):
 
 @frappe.whitelist()
 def make_bank_payment(docname):
-	if not frappe.has_permission("Bank Payment Approver - 02"):
+	if not frappe.user.has_role("Bank Payment Approver - 02"):
 		frappe.throw("No Permission to initiate")
 
 	payment_order_doc = frappe.get_doc("Payment Order", docname)
