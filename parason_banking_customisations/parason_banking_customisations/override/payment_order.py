@@ -15,14 +15,14 @@ class CustomPaymentOrder(PaymentOrder):
 		hold_count = 0
 		rejected_acount = 0
 		for row in self.summary:
-			if row.initial_rejection or row.final_rejection:
+			if row.approval_status == "Rejected":
 				rejected_acount += 1
 				pe_doc = frappe.get_doc("Payment Entry", row.payment_entry)
 				if pe_doc.docstatus == 1:
 					pe_doc.cancel()
 				frappe.db.set_value("Payment Order Summary", row.name, "payment_status", "Rejected")
 				frappe.db.set_value("Payment Order Summary", row.name, "payment_rejected", 1)
-			elif row.hold:
+			elif row.approval_status == "Put to Hold":
 				hold_count += 1
 				frappe.db.set_value("Payment Order Summary", row.name, "payment_status", "On Hold")
 		if rejected_acount == len(self.summary):
@@ -33,5 +33,10 @@ class CustomPaymentOrder(PaymentOrder):
 			frappe.db.set_value("Payment Order", self.name, "status", "Approved")
 
 
-	def on_cancel(self):
-		pass
+	def before_cancel(self):
+		frappe.throw("You cannot cancel a payment order")
+		return
+	
+	def on_trash(self):
+		frappe.throw("You cannot delete a payment order")
+		return

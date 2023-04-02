@@ -113,6 +113,9 @@ def validate_summary(self, method):
 
 @frappe.whitelist()
 def make_bank_payment(docname):
+	if not frappe.has_permission("Bank Payment Approver - 02"):
+		frappe.throw("No Permission to initiate")
+
 	payment_order_doc = frappe.get_doc("Payment Order", docname)
 	on_hold_count = 0
 	approved_count = 0
@@ -120,12 +123,12 @@ def make_bank_payment(docname):
 		if i.payment_initiated:
 			continue
 
-		if i.initial_rejection or i.final_rejection or i.payment_rejected:
+		if i.approval_status in ["Put to Hold", "Rejected"]:
 			continue
 
-		if i.hold:
+		if i.approval_status == "Put to Hold":
 			on_hold_count += 1
-		elif i.approve:
+		elif i.approval_status == "Approved":
 			approved_count += 1
 			frappe.db.set_value("Payment Order Summary", i.name, "payment_initiated", 1)
 
@@ -133,10 +136,39 @@ def make_bank_payment(docname):
 		frappe.db.set_value("Payment Order", docname, "status", "Partially Initiated")
 	elif approved_count:
 		frappe.db.set_value("Payment Order", docname, "status", "Initiated")
+
+	# Commenting the payments as it returns: "message":"Open API Access not allowed","status":"F"
 	#validate_payment(docname)
 	#process_payment(docname)
 	#status = update_payment_status(docname)
+
 	return {"message": f"{approved_count} payments initiated"}
+
+@frappe.whitelist()
+def modify_approval_status(items, approval_status):
+	if not items:
+		return
+	
+	if isinstance(items, str):
+		items = json.loads(items)
+	line_item_status = {}
+	for item in items:
+		line_item_status[item] = {"status": None, "message": ""}
+		pos_doc = frappe.get_doc("Payment Order Summary", item)
+		if pos_doc.payment_initiated:
+			line_item_status[item] = {"status": 0, "message": f"Payment already initiated for {pos_doc.supplier} - {pos_doc.amount}"}
+			continue
+		if pos_doc.payment_rejected:
+			line_item_status[item] = {"status": 0, "message": f"Payment already rejected for {pos_doc.supplier} - {pos_doc.amount}"}
+			continue
+		frappe.db.set_value("Payment Order Summary", item, "approval_status", approval_status)
+		line_item_status[item] = {
+			"status": 1, 
+			"message": approval_status
+		}
+
+	return line_item_status
+
 
 @frappe.whitelist()
 def make_payment_entries(docname):

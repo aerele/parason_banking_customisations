@@ -4,6 +4,8 @@ frappe.ui.form.on('Payment Order', {
 		frm.refresh_field("payment_order_type");
 	},
 	refresh(frm) {
+		frm.set_df_property('summary', 'cannot_delete_rows', true);
+		frm.set_df_property('summary', 'cannot_add_rows', true);
 		frm.remove_custom_button("Payment Entry", "Get Payments from");
 		frm.remove_custom_button("Payment Request", "Get Payments from");
 		frm.set_df_property("payment_order_type", "options", [""].concat(["Payment Request", "Payment Entry", "Purchase Invoice"]));
@@ -53,13 +55,13 @@ frappe.ui.form.on('Payment Order', {
 		}
 		if (frappe.user.has_role('Bank Payment Approver - 02')) {
 			if (frm.has_perm('write') && 'summary' in frm.doc) {
-				var approved_payments_count = 0;
+				var uninitiated_payments = 0;
 				for(var i = 0; i < frm.doc.summary.length; i++) {
-					if (frm.doc.summary[i].approve == 1) {
-						approved_payments_count += 1
+					if (frm.doc.summary[i].approval_status == "Approved" && !frm.doc.summary[i].payment_initiated) {
+						uninitiated_payments += 1
 					}
 				}
-				if (approved_payments_count > 0) {
+				if (uninitiated_payments > 0) {
 					frm.add_custom_button(__('Initiate Payment'), function() {
 						frappe.call({
 							method: "parason_banking_customisations.parason_banking_customisations.doc_events.payment_order.make_bank_payment",
@@ -70,12 +72,25 @@ frappe.ui.form.on('Payment Order', {
 								if(r.message) {
 									frappe.msgprint(r.message)
 								}
+								frm.reload_doc();
 							}
 						});
 					});
 				}
 			}
 		}
+
+		var payment_ir_count = 0
+		for(var j = 0; j < frm.doc.summary.length; j++) {
+			if (frm.doc.summary[j].payment_initiated || frm.doc.summary[j].payment_rejected) {
+				payment_ir_count += 1
+			}
+		}
+		if (payment_ir_count == frm.doc.summary.length) {
+			frm.set_df_property('approval_status', 'hidden', 1);
+			frm.set_df_property('update_status', 'hidden', 1);
+		}
+
 	},
 	after_workflow_action(frm) {
 		// if (frm.doc.workflow_state == "Approved") {
@@ -145,5 +160,48 @@ frappe.ui.form.on('Payment Order', {
 			}
 		});
 	},
+	update_status: function(frm) {
+		if (frm.doc.docstatus != 1) {
+			frappe.msgprint("Updating status is not allowed without submission");
+			return
+		}
+
+		if (!frm.doc.approval_status) {
+			frappe.msgprint("Updating status is not allowed without value");
+			return
+		}
+
+		var selected_rows = frm.get_selected()
+		if (!Object.keys(selected_rows).length || !"summary" in selected_rows){
+			frappe.msgprint("No rows are selected");
+			return
+		}
+
+		frappe.call({
+			method: "parason_banking_customisations.parason_banking_customisations.doc_events.payment_order.modify_approval_status",
+			args: {
+				items: selected_rows.summary,
+				approval_status: frm.doc.approval_status,
+			},
+			callback: function(r) {
+				if(r.message) {
+					var updated_count = 0
+					for (var line_item in r.message) {
+						if (r.message[line_item].status) {
+							frappe.model.set_value("Payment Order Summary", line_item, "approval_status", r.message[line_item].message);
+							updated_count += 1
+						} else {
+							frappe.msgprint(r.message[line_item].message)
+						}
+					}
+					frappe.msgprint(updated_count + " record(s) updated.")
+				}
+				frm.dirty();
+				frm.refresh_fields();
+
+				frm.reload_doc();
+			}
+		});
+	}
 
 })
