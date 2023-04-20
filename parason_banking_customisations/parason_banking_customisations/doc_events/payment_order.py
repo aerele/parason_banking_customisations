@@ -12,7 +12,6 @@ def get_supplier_summary(references, company_bank_account):
 		return
 	supplier_bank_account, supplier_account = validate_supplier_bank_accounts(references)
 	summary = {}
-
 	for reference in references:
 		summary_key = reference["supplier"] + "{}" +  reference["plant"]
 		if summary_key  in summary:
@@ -27,6 +26,8 @@ def get_supplier_summary(references, company_bank_account):
 			"plant": sum_plant[1],
 			"amount": v
 		}
+		supplier_name = frappe.db.get_value("Supplier", data["supplier"], "supplier_name")
+		data["supplier_name"] = supplier_name
 		result.append(data)
 	
 	for row in result:

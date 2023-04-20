@@ -146,9 +146,12 @@ frappe.ui.form.on('Payment Order', {
 				if(r.message) {
 					let summary_data = r.message
 					frm.clear_table("summary");
+					var doc_total = 0
 					for (var i = 0; i < summary_data.length; i++) {
+						doc_total += summary_data[i].amount
 						let row = frm.add_child("summary");
 						row.supplier = summary_data[i].supplier;
+						row.supplier_name = summary_data[i].supplier_name;
 						row.amount = summary_data[i].amount;
 						row.bank_account = summary_data[i].bank_account;
 						row.account = summary_data[i].account;
@@ -156,6 +159,8 @@ frappe.ui.form.on('Payment Order', {
 						row.plant = summary_data[i].plant;
 					}
 					frm.refresh_field("summary");
+					frm.doc.total = doc_total;
+					frm.refresh_fields();
 				}
 			}
 		});
