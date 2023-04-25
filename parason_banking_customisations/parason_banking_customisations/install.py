@@ -5,8 +5,8 @@ def after_install():
 	disable_reqd_for_reference_in_payment_order()
 
 def allow_payment_request_creation():
-	frappe.db.set_value("Doctype", "Payment Request", "in_create", 0)
-	frappe.db.set_value("Doctype", "Payment Request", "track_changes", 1)
+	frappe.db.set_value("DocType", "Payment Request", "in_create", 0)
+	frappe.db.set_value("DocType", "Payment Request", "track_changes", 1)
 
 def disable_reqd_for_reference_in_payment_order():
 	po_type = frappe.db.get_value("DocField", {"parent": "Payment Order Reference", "fieldname": "reference_doctype"})
