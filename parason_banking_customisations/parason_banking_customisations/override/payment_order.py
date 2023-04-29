@@ -21,5 +21,6 @@ class CustomPaymentOrder(PaymentOrder):
 		return
 	
 	def on_trash(self):
-		frappe.throw("You cannot delete a payment order")
-		return
+		if self.docstatus == 1:
+			frappe.throw("You cannot delete a payment order")
+			return
