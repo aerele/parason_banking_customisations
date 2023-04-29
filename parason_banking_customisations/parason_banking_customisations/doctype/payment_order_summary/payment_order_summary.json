@@ -16,9 +16,7 @@
   "account",
   "payment_entry",
   "plant",
-  "approval_status",
-  "payment_initiated",
-  "payment_rejected"
+  "payment_initiated"
  ],
  "fields": [
   {
@@ -103,24 +101,6 @@
    "read_only": 1
   },
   {
-   "allow_on_submit": 1,
-   "default": "0",
-   "fieldname": "payment_rejected",
-   "fieldtype": "Check",
-   "hidden": 1,
-   "label": "Payment Rejected",
-   "read_only": 1
-  },
-  {
-   "columns": 1,
-   "fieldname": "approval_status",
-   "fieldtype": "Link",
-   "in_list_view": 1,
-   "label": "Approval Status",
-   "options": "Payment Order Approval Status",
-   "read_only": 1
-  },
-  {
    "fetch_from": "supplier.supplier_name",
    "fieldname": "supplier_name",
    "fieldtype": "Data",
@@ -131,7 +111,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2023-04-20 15:04:17.347850",
+ "modified": "2023-04-29 08:48:20.830568",
  "modified_by": "Administrator",
  "module": "Parason Banking Customisations",
  "name": "Payment Order Summary",

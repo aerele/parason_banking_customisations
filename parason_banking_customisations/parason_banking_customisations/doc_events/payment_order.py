@@ -114,37 +114,20 @@ def validate_summary(self, method):
 
 @frappe.whitelist()
 def make_bank_payment(docname):
-	roles = frappe.get_roles(frappe.session.user)
-	if not "Bank Payment Approver - 02" in roles:
-		frappe.throw("No Permission to initiate")
-
 	payment_order_doc = frappe.get_doc("Payment Order", docname)
-	on_hold_count = 0
-	approved_count = 0
+	count = 0
 	for i in payment_order_doc.summary:
-		if i.payment_initiated:
-			continue
+		frappe.db.set_value("Payment Order Summary", i.name, "payment_initiated", 1)
+		count += 1
+	frappe.db.set_value("Payment Order", docname, "status", "Initiated")
 
-		if i.approval_status in ["Put to Hold", "Rejected"]:
-			continue
-
-		if i.approval_status == "Put to Hold":
-			on_hold_count += 1
-		elif i.approval_status == "Approved":
-			approved_count += 1
-			frappe.db.set_value("Payment Order Summary", i.name, "payment_initiated", 1)
-
-	if on_hold_count:
-		frappe.db.set_value("Payment Order", docname, "status", "Partially Initiated")
-	elif approved_count:
-		frappe.db.set_value("Payment Order", docname, "status", "Initiated")
 
 	# Commenting the payments as it returns: "message":"Open API Access not allowed","status":"F"
 	#validate_payment(docname)
 	#process_payment(docname)
 	#status = update_payment_status(docname)
 
-	return {"message": f"{approved_count} payments initiated"}
+	return {"message": f"{count} payments initiated"}
 
 @frappe.whitelist()
 def modify_approval_status(items, approval_status):

@@ -53,11 +53,11 @@ frappe.ui.form.on('Payment Order', {
 		if (frm.doc.docstatus===1 && frm.doc.payment_order_type==='Payment Request') {
 			frm.remove_custom_button(__('Create Payment Entries'));
 		}
-		if (frappe.user.has_role('Bank Payment Approver - 02')) {
+		if (frm.doc.status == "Pending") {
 			if (frm.has_perm('write') && 'summary' in frm.doc) {
 				var uninitiated_payments = 0;
 				for(var i = 0; i < frm.doc.summary.length; i++) {
-					if (frm.doc.summary[i].approval_status == "Approved" && !frm.doc.summary[i].payment_initiated) {
+					if (!frm.doc.summary[i].payment_initiated) {
 						uninitiated_payments += 1
 					}
 				}
@@ -78,17 +78,6 @@ frappe.ui.form.on('Payment Order', {
 					});
 				}
 			}
-		}
-
-		var payment_ir_count = 0
-		for(var j = 0; j < frm.doc.summary.length; j++) {
-			if (frm.doc.summary[j].payment_initiated || frm.doc.summary[j].payment_rejected) {
-				payment_ir_count += 1
-			}
-		}
-		if (payment_ir_count == frm.doc.summary.length) {
-			frm.set_df_property('approval_status', 'hidden', 1);
-			frm.set_df_property('update_status', 'hidden', 1);
 		}
 
 	},
