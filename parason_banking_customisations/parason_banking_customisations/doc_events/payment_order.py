@@ -116,15 +116,12 @@ def validate_summary(self, method):
 def make_bank_payment(docname):
 	payment_order_doc = frappe.get_doc("Payment Order", docname)
 	count = 0
-	for i in payment_order_doc.summary:
+	for  in payment_order_doc.summary:
 		frappe.db.set_value("Payment Order Summary", i.name, "payment_initiated", 1)
 		count += 1
+		process_payment(i)
 	frappe.db.set_value("Payment Order", docname, "status", "Initiated")
 
-
-	# Commenting the payments as it returns: "message":"Open API Access not allowed","status":"F"
-	#validate_payment(docname)
-	#process_payment(docname)
 	#status = update_payment_status(docname)
 
 	return {"message": f"{count} payments initiated"}
