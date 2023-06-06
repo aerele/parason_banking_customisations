@@ -2,6 +2,8 @@ import frappe
 from frappe.utils import nowdate
 import json
 import uuid
+from parason_banking_customisations.parason_banking_customisations.payments.payment import process_payment
+
 
 
 @frappe.whitelist()
@@ -116,7 +118,7 @@ def validate_summary(self, method):
 def make_bank_payment(docname):
 	payment_order_doc = frappe.get_doc("Payment Order", docname)
 	count = 0
-	for  in payment_order_doc.summary:
+	for i in payment_order_doc.summary:
 		frappe.db.set_value("Payment Order Summary", i.name, "payment_initiated", 1)
 		count += 1
 		process_payment(i)

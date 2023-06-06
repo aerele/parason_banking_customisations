@@ -7,8 +7,6 @@ from base64 import b64decode, b64encode
 from Crypto.Util.Padding import unpad
 from datetime import datetime
 from frappe.utils import flt, getdate, nowdate, today
-from parason_banking_customisations.parason_banking_customisations.payments.payment import process_payment
-
 
 
 @frappe.whitelist()
