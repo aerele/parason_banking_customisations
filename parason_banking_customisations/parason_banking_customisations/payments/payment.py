@@ -79,7 +79,7 @@ def process_payment(payment_info, company_bank_account):
 		return True
 
 def make_request_payload(payment_info, company_bank_account):
-	paymode = frappe.db.get_value("Bank Integration Mode", payment_info.mode_of_transfer, "short_code")
+	paymode = frappe.db.get_value("Bank Integration Mode", {"mode_of_transfer": payment_info.mode_of_transfer}, "short_code")
 	bank_account = frappe.get_doc("Bank Account", payment_info.bank_account)
 	debit_account_no = frappe.db.get_value("Bank Account", company_bank_account, "bank_account_no")
 	return {
@@ -92,7 +92,7 @@ def make_request_payload(payment_info, company_bank_account):
 		},
 		"TransferPaymentRequestBody": {
 			"channelId": "PARASON",
-			"corpCode": "Parason",
+			"corpCode": "DEMOCORP213",
 			"paymentDetails": [
 				{
 					"txnPaymode": paymode,
