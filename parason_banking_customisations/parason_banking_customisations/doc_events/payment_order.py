@@ -119,12 +119,20 @@ def make_bank_payment(docname):
 	payment_order_doc = frappe.get_doc("Payment Order", docname)
 	count = 0
 	for i in payment_order_doc.summary:
-		frappe.db.set_value("Payment Order Summary", i.name, "payment_initiated", 1)
-		count += 1
-		process_payment(i)
-	frappe.db.set_value("Payment Order", docname, "status", "Initiated")
+		if not i.payment_initiated:
+			payment_status = process_payment(i, payment_order_doc.company_bank_account)
+			if payment_status:
+				frappe.db.set_value("Payment Order Summary", i.name, "payment_initiated", 1)
+				count += 1
 
-	#status = update_payment_status(docname)
+	payment_order_doc.reload()
+	processed_count = 0
+	for i in payment_order_doc.summary:
+		if i.payment_initiated:
+			processed_count += 1
+	
+	if processed_count == len(payment_order_doc.summary):
+		frappe.db.set_value("Payment Order", docname, "status", "Initiated")
 
 	return {"message": f"{count} payments initiated"}
 

@@ -8,21 +8,22 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "bank",
-  "column_break_7bgkx",
   "bank_account",
-  "aes_key",
+  "column_break_7bgkx",
+  "client_id",
+  "client_secret",
   "section_break_prkwq",
   "modes",
+  "section_break_jxrzj",
+  "links",
+  "section_break_i6wth",
+  "aes_key",
+  "column_break_3wrai",
+  "signing_certificate",
+  "private_key",
   "amended_from"
  ],
  "fields": [
-  {
-   "fieldname": "bank",
-   "fieldtype": "Link",
-   "label": "Bank",
-   "options": "Bank"
-  },
   {
    "fieldname": "column_break_7bgkx",
    "fieldtype": "Column Break"
@@ -57,12 +58,51 @@
    "fieldname": "aes_key",
    "fieldtype": "Password",
    "label": "AES Key"
+  },
+  {
+   "fieldname": "section_break_jxrzj",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "links",
+   "fieldtype": "Table",
+   "label": "Links",
+   "options": "Bank Integration Link"
+  },
+  {
+   "fieldname": "client_id",
+   "fieldtype": "Password",
+   "label": "Client ID"
+  },
+  {
+   "fieldname": "client_secret",
+   "fieldtype": "Password",
+   "label": "Client Secret"
+  },
+  {
+   "fieldname": "section_break_i6wth",
+   "fieldtype": "Section Break",
+   "label": "Keys"
+  },
+  {
+   "fieldname": "signing_certificate",
+   "fieldtype": "Attach",
+   "label": "Signing Certificate"
+  },
+  {
+   "fieldname": "private_key",
+   "fieldtype": "Attach",
+   "label": "Private Key"
+  },
+  {
+   "fieldname": "column_break_3wrai",
+   "fieldtype": "Column Break"
   }
  ],
  "index_web_pages_for_search": 1,
  "is_submittable": 1,
  "links": [],
- "modified": "2023-02-16 10:42:35.876219",
+ "modified": "2023-06-13 22:42:36.348986",
  "modified_by": "Administrator",
  "module": "Parason Banking Customisations",
  "name": "Bank Integration Settings",

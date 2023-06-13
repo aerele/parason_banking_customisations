@@ -5,19 +5,29 @@ import hashlib
 from Crypto.Cipher import AES
 from base64 import b64decode, b64encode
 from Crypto.Util.Padding import unpad
-from datetime import datetime
-from frappe.utils import flt, getdate, nowdate, today
+from frappe.utils import today
 
 
 @frappe.whitelist()
-def process_payment(payment_info):
+def process_payment(payment_info, company_bank_account):
 	if not payment_info:
-		return
-	data = make_request_payload(payment_info)
+		return False
+	
+	if not company_bank_account:
+		frappe.throw("Company bank account is not available")
+		return False
+
+	bank_integration_doc = frappe.get_doc("Bank Integration Settings", company_bank_account)
+
+	if not bank_integration_doc:
+		frappe.throw(f"Bank Integrtation Settings is not available for {company_bank_account}")
+		return False
+
+	data = make_request_payload(payment_info, company_bank_account)
 	checksum = calculate_checsum(data=data["TransferPaymentRequest"]["TransferPaymentRequestBody"])
 	data["TransferPaymentRequest"]["TransferPaymentRequestBody"]["checksum"] = checksum
 
-	aes_key = "98055A8E48EC727B8B3946F312E4D89F"
+	aes_key = bank_integration_doc.get_password(fieldname="aes_key")
 	n = 2
 	aes_key_array = [aes_key[i:i+n] for i in range(0, len(aes_key), n)]
 	# print(aes_key_array)
@@ -45,20 +55,33 @@ def process_payment(payment_info):
 	payload["TransferPaymentRequest"] = payment_request_data
 
 
-	url = "https://sakshamuat.axisbank.co.in/gateway/api/txb/v1/payments/transfer-payment"
+	url = frappe.db.get_value("Bank Integration Link", {"parent": bank_integration_doc.name, "type": "Payout"}, "url")
 	headers = {
-			'Content-Type': 'application/json',
-			'X-IBM-Client-Id': '070fa58a-c541-429e-9332-583be8da305d',
-			'X-IBM-Client-Secret': 'L8rX7rE1iW0vR5kF8gU5iI5wR3cR1sW0hQ5wO2yO3aI2sR1lK5',
-			'Accept': 'application/json'
+		'Content-Type': 'application/json',
+		'X-IBM-Client-Id': bank_integration_doc.get_password(fieldname="client_id"),
+		'X-IBM-Client-Secret': bank_integration_doc.get_password(fieldname="client_secret"),
+		'Accept': 'application/json'
 	}
 
-	response = requests.request("POST", url, headers=headers, data=json.dumps(payload), cert=("/home/frappeuser/sixa_test/client_cert.txt", "/home/frappeuser/sixa_test/parason_plain.key"))
+	request_log = frappe.new_doc("Bank API Request Log")
+	request_log.payment_order = payment_info.parent
+	request_log.payload = json.dumps(data)
+	response = requests.request("POST", url, headers=headers, data=json.dumps(payload), cert=(bank_integration_doc.signing_certificate, bank_integration_doc.private_key))
+	response_json = json.loads(response.text)
+	decrypted_text = decrypt_data(response_json["GetStatusResponse"]["GetStatusResponseBodyEncrypted"], bytearray(key_byte_list))
+	request_log.response = decrypted_text
+	request_log.status = response.status_code
+	request_log.insert()
 
-	
-def make_request_payload(payment_info):
+	if response.status_code not in [201, 200]:
+		return False
+	else:
+		return True
+
+def make_request_payload(payment_info, company_bank_account):
 	paymode = frappe.db.get_value("Bank Integration Mode", payment_info.mode_of_transfer, "short_code")
 	bank_account = frappe.get_doc("Bank Account", payment_info.bank_account)
+	debit_account_no = frappe.db.get_value("Bank Account", company_bank_account, "bank_account_no")
 	return {
 	"TransferPaymentRequest": {
 		"SubHeader": {
@@ -74,7 +97,7 @@ def make_request_payload(payment_info):
 				{
 					"txnPaymode": paymode,
 					"custUniqRef": payment_info.name,
-					"corpAccNum": "248012910169",
+					"corpAccNum": debit_account_no,
 					"valueDate": str(today()),
 					"txnAmount": str(payment_info.amount),
 					"beneName": bank_account.account_name,
@@ -134,9 +157,6 @@ def pad(byte_array:bytearray):
 	pad_len = BLOCK_SIZE - len(byte_array) % BLOCK_SIZE
 	return byte_array + (bytes([pad_len]) * pad_len)
 
-def unpad(byte_array:bytearray):
-	return byte_array[:-ord(byte_array[-1:])]
-
 def encrypt_data(data, key):
 	data = json.dumps(data)
 	# convert to bytes
@@ -161,8 +181,8 @@ def decrypt_data(data, key):
 	# base64 decode
 	message = b64decode(byte_array)
 	# AES instance with the - setKey()
-	cipher= AES.new(key, AES.MODE_CBC, IV)
+	cipher= AES.new(key, AES.MODE_CBC, message[:AES.block_size])
 	# decrypt and decode
-	decrypted = cipher.decrypt(message)
+	decrypted = cipher.decrypt(message[AES.block_size:])
 	# unpad - with pkcs5 style and return 
-	return unpad(decrypted)
+	return unpad(decrypted, AES.block_size).decode("utf-8")
