@@ -71,7 +71,7 @@ def process_payment(payment_info, company_bank_account):
 	key_file = frappe.get_doc("File", {"file_url": bank_integration_doc.private_key})
 	response = requests.request("POST", url, headers=headers, data=json.dumps(payload), cert=(cert_file.get_full_path(), key_file.get_full_path()))
 	response_json = json.loads(response.text)
-	decrypted_text = decrypt_data(response_json["GetStatusResponse"]["GetStatusResponseBodyEncrypted"], bytearray(key_byte_list))
+	decrypted_text = decrypt_data(response_json["TransferPaymentResponse"]["TransferPaymentResponseBodyEncrypted"], bytearray(key_byte_list))
 	request_log.response = decrypted_text
 	request_log.status = response.status_code
 	request_log.insert()
