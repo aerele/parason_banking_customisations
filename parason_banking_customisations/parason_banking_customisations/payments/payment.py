@@ -95,7 +95,7 @@ def make_request_payload(payment_info, company_bank_account, invoices = None):
 	if billing_address:
 		city = billing_address.city
 		state = billing_address.state
-		pincode = billing_address.pincode
+		pincode = str(billing_address.pincode)
 		address_title = billing_address.address_title
 		address_line1 = billing_address.address_line1
 		address_line2 = billing_address.address_line2

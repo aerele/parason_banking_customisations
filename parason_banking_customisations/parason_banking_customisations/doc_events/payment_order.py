@@ -150,11 +150,11 @@ def get_invoice_details(po_doc, summary_doc):
 				base_total_taxes_and_charges = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "base_total_taxes_and_charges")
 				base_net_total = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "base_net_total")
 				invoices.append({
-					"invoiceAmount": base_grand_total,
-					"invoiceNumber": ref.reference_name,
-					"invoiceDate": posting_date,
-					"tax": base_total_taxes_and_charges,
-					"netAmount": base_net_total
+					"invoiceAmount": str(base_grand_total),
+					"invoiceNumber": str(ref.reference_name),
+					"invoiceDate": str(posting_date),
+					"tax": str(base_total_taxes_and_charges),
+					"netAmount": str(base_net_total)
 				})
 			elif ref.reference_doctype and ref.reference_name and ref.reference_doctype == "Purchase Order":
 				base_grand_total = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "base_grand_total")
@@ -162,11 +162,11 @@ def get_invoice_details(po_doc, summary_doc):
 				base_total_taxes_and_charges = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "base_total_taxes_and_charges")
 				base_net_total = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "base_net_total")
 				invoices.append({
-					"invoiceAmount": base_grand_total,
-					"invoiceNumber": ref.reference_name,
-					"invoiceDate": transaction_date,
-					"tax": base_total_taxes_and_charges,
-					"netAmount": base_net_total
+					"invoiceAmount": str(base_grand_total),
+					"invoiceNumber": str(ref.reference_name),
+					"invoiceDate": str(transaction_date),
+					"tax": str(base_total_taxes_and_charges),
+					"netAmount": str(base_net_total)
 				})
 	
 	if amount == summary_doc.amount and len(invoices):
