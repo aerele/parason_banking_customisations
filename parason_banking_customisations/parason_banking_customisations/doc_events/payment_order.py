@@ -5,7 +5,6 @@ import uuid
 from parason_banking_customisations.parason_banking_customisations.payments.payment import process_payment
 
 
-
 @frappe.whitelist()
 def get_supplier_summary(references, company_bank_account):
 	import json
@@ -120,7 +119,8 @@ def make_bank_payment(docname):
 	count = 0
 	for i in payment_order_doc.summary:
 		if not i.payment_initiated:
-			payment_status = process_payment(i, payment_order_doc.company_bank_account)
+			invoices = get_invoice_details(payment_order_doc, i)
+			payment_status = process_payment(i, payment_order_doc.company_bank_account, invoices=invoices)
 			if payment_status:
 				frappe.db.set_value("Payment Order Summary", i.name, "payment_initiated", 1)
 				count += 1
@@ -135,6 +135,42 @@ def make_bank_payment(docname):
 		frappe.db.set_value("Payment Order", docname, "status", "Initiated")
 
 	return {"message": f"{count} payments initiated"}
+
+def get_invoice_details(po_doc, summary_doc):
+	supplier = summary_doc.supplier
+	plant = summary_doc.plant
+	invoices = []
+	amount = 0
+	for ref in po_doc.references:
+		if ref.supplier == supplier and ref.plant == plant:
+			amount += ref.amount
+			if ref.reference_doctype and ref.reference_name and ref.reference_doctype == "Purchase Invoice":
+				base_grand_total = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "base_grand_total")
+				posting_date = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "posting_date")
+				base_total_taxes_and_charges = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "base_total_taxes_and_charges")
+				base_net_total = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "base_net_total")
+				invoices.append({
+					"invoiceAmount": base_grand_total,
+					"invoiceNumber": ref.reference_name,
+					"invoiceDate": posting_date,
+					"tax": base_total_taxes_and_charges,
+					"netAmount": base_net_total
+				})
+			elif ref.reference_doctype and ref.reference_name and ref.reference_doctype == "Purchase Order":
+				base_grand_total = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "base_grand_total")
+				transaction_date = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "transaction_date")
+				base_total_taxes_and_charges = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "base_total_taxes_and_charges")
+				base_net_total = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "base_net_total")
+				invoices.append({
+					"invoiceAmount": base_grand_total,
+					"invoiceNumber": ref.reference_name,
+					"invoiceDate": transaction_date,
+					"tax": base_total_taxes_and_charges,
+					"netAmount": base_net_total
+				})
+	
+	if amount == summary_doc.amount and len(invoices):
+		return invoices
 
 @frappe.whitelist()
 def modify_approval_status(items, approval_status):

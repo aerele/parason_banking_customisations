@@ -6,10 +6,12 @@ from Crypto.Cipher import AES
 from base64 import b64decode, b64encode
 from Crypto.Util.Padding import unpad
 from frappe.utils import today
+from frappe.contacts.doctype.address.address import get_default_address
+
 
 
 @frappe.whitelist()
-def process_payment(payment_info, company_bank_account):
+def process_payment(payment_info, company_bank_account, invoices = None):
 	if not payment_info:
 		return False
 	
@@ -23,7 +25,7 @@ def process_payment(payment_info, company_bank_account):
 		frappe.throw(f"Bank Integrtation Settings is not available for {company_bank_account}")
 		return False
 
-	data = make_request_payload(payment_info, company_bank_account)
+	data = make_request_payload(payment_info, company_bank_account, invoices = invoices)
 	checksum = calculate_checsum(data=data["TransferPaymentRequest"]["TransferPaymentRequestBody"])
 	data["TransferPaymentRequest"]["TransferPaymentRequestBody"]["checksum"] = checksum
 
@@ -81,10 +83,25 @@ def process_payment(payment_info, company_bank_account):
 	else:
 		return True
 
-def make_request_payload(payment_info, company_bank_account):
+def make_request_payload(payment_info, company_bank_account, invoices = None):
 	paymode = frappe.db.get_value("Bank Integration Mode", {"mode_of_transfer": payment_info.mode_of_transfer}, "short_code")
 	bank_account = frappe.get_doc("Bank Account", payment_info.bank_account)
 	debit_account_no = frappe.db.get_value("Bank Account", company_bank_account, "bank_account_no")
+
+	billing_address_name = get_default_address("Supplier", payment_info.supplier)
+	if billing_address_name:
+		billing_address = frappe.get_doc("Address", billing_address_name)
+	address_title, address_line1, address_line2, city, state, pincode, email_id, phone = "", "", "", "", "", "", "", ""
+	if billing_address:
+		city = billing_address.city
+		state = billing_address.state
+		pincode = billing_address.pincode
+		address_title = billing_address.address_title
+		address_line1 = billing_address.address_line1
+		address_line2 = billing_address.address_line2
+		email_id = billing_address.email_id
+		phone = billing_address.phone
+
 	return {
 	"TransferPaymentRequest": {
 		"SubHeader": {
@@ -107,12 +124,12 @@ def make_request_payload(payment_info, company_bank_account):
 					"beneCode": bank_account.party,
 					"beneAccNum": bank_account.bank_account_no,
 					"beneAcType": "",
-					"beneAddr1": "",
-					"beneAddr2": "",
-					"beneAddr3": "",
-					"beneCity": "",
-					"beneState": "",
-					"benePincode": "",
+					"beneAddr1": address_title,
+					"beneAddr2": address_line1,
+					"beneAddr3": address_line2,
+					"beneCity": city,
+					"beneState": state,
+					"benePincode": pincode,
 					"beneIfscCode": bank_account.branch_code,
 					"beneBankName": bank_account.bank,
 					"baseCode": "",
@@ -120,10 +137,11 @@ def make_request_payload(payment_info, company_bank_account):
 					"chequeDate": "",
 					"payableLocation": "",
 					"printLocation": "",
-					"beneEmailAddr1": "",
-					"beneMobileNo": "",
+					"beneEmailAddr1": email_id,
+					"beneMobileNo": phone,
 					"productCode": "",
 					"txnType": "",
+					"invoiceDetails": invoices,
 					"enrichment1": "",
 					"enrichment2": "",
 					"enrichment3": "",
