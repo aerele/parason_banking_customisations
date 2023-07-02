@@ -154,7 +154,7 @@ def get_invoice_details(po_doc, summary_doc):
 					"invoiceNumber": str(ref.reference_name),
 					"invoiceDate": str(posting_date),
 					"tax": str(-base_taxes_and_charges_deducted if base_taxes_and_charges_deducted else 0),
-					"invoiceAmount": str((base_grand_total - base_taxes_and_charges_deducted) if base_taxes_and_charges_deducted else base_grand_total)
+					"invoiceAmount": str((base_grand_total + base_taxes_and_charges_deducted) if base_taxes_and_charges_deducted else base_grand_total)
 				})
 			elif ref.reference_doctype and ref.reference_name and ref.reference_doctype == "Purchase Order":
 				base_rounded_total = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "base_rounded_total")
@@ -166,7 +166,7 @@ def get_invoice_details(po_doc, summary_doc):
 					"invoiceNumber": str(ref.reference_name),
 					"invoiceDate": str(transaction_date),
 					"tax": str(-base_taxes_and_charges_deducted if base_taxes_and_charges_deducted else 0),
-					"invoiceAmount": str((base_grand_total - base_taxes_and_charges_deducted) if base_taxes_and_charges_deducted else base_grand_total)
+					"invoiceAmount": str((base_grand_total + base_taxes_and_charges_deducted) if base_taxes_and_charges_deducted else base_grand_total)
 				})
 	
 	if amount == summary_doc.amount and len(invoices):
