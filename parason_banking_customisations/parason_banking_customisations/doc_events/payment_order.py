@@ -145,24 +145,22 @@ def get_invoice_details(po_doc, summary_doc):
 		if ref.supplier == supplier and ref.plant == plant:
 			amount += ref.amount
 			if ref.reference_doctype and ref.reference_name and ref.reference_doctype == "Purchase Invoice":
-				base_rounded_total = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "base_rounded_total")
 				posting_date = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "posting_date")
 				base_grand_total = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "base_grand_total")
 				base_taxes_and_charges_deducted = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "base_taxes_and_charges_deducted")
 				invoices.append({
-					"netAmount": str(base_rounded_total),
+					"netAmount": str(ref.amount),
 					"invoiceNumber": str(ref.reference_name),
 					"invoiceDate": str(posting_date),
 					"tax": str(-base_taxes_and_charges_deducted if base_taxes_and_charges_deducted else 0),
 					"invoiceAmount": str((base_grand_total + base_taxes_and_charges_deducted) if base_taxes_and_charges_deducted else base_grand_total)
 				})
 			elif ref.reference_doctype and ref.reference_name and ref.reference_doctype == "Purchase Order":
-				base_rounded_total = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "base_rounded_total")
 				transaction_date = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "transaction_date")
 				base_taxes_and_charges_deducted = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "base_taxes_and_charges_deducted")
 				base_grand_total = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "base_grand_total")
 				invoices.append({
-					"netAmount": str(base_rounded_total),
+					"netAmount": str(ref.amount),
 					"invoiceNumber": str(ref.reference_name),
 					"invoiceDate": str(transaction_date),
 					"tax": str(-base_taxes_and_charges_deducted if base_taxes_and_charges_deducted else 0),
@@ -209,6 +207,7 @@ def make_payment_entries(docname):
 	# party_account = frappe.db.get_value("Payment Request Type", doc.payment_type, "account_paid_to")
 	is_advance_payment = "Yes"
 	is_adhoc = 0
+
 	for ref in payment_order_doc.references:
 		if ref.reference_doctype == "Purchase Invoice":
 			is_advance_payment = "No"
@@ -243,9 +242,14 @@ def make_payment_entries(docname):
 		pe.letter_head = frappe.db.get_value("Letter Head", {"is_default": 1}, "name")
 
 
+		apply_tds = 0
+		tds_cateogry = None
 		if not is_adhoc:
 			for reference in payment_order_doc.references:
 				if reference.supplier == row.supplier and reference.plant == row.plant:
+					if reference.reference_doctype and reference.reference_name:
+						apply_tds = frappe.db.get_value(reference.reference_doctype, reference.reference_name, "apply_tds")
+						tds_cateogry = frappe.db.get_value(reference.reference_doctype, reference.reference_name, "tax_withholding_category")
 					pe.append(
 						"references",
 						{
@@ -255,6 +259,15 @@ def make_payment_entries(docname):
 							"allocated_amount": reference.amount,
 						},
 					)
+		else:
+			for reference in payment_order_doc.references:
+				apply_tds = frappe.db.get_value("Payment Request", reference.payment_request, "apply_tax_withholding_amount")
+				tds_cateogry = frappe.db.get_value("Payment Request", reference.payment_request, "tax_withholding_category")
+		
+		if apply_tds and tds_cateogry:
+			pe.apply_tax_withholding_amount = apply_tds
+			pe.tax_withholding_category = tds_cateogry
+
 		pe.update(
 			{
 				"reference_no": payment_order_doc.name,
