@@ -254,15 +254,27 @@ def make_payment_entries(docname):
 
 		for reference in payment_order_doc.references:
 			if reference.supplier == row.supplier and reference.plant == row.plant and not reference.is_adhoc:
-				pe.append(
-					"references",
-					{
-						"reference_doctype": reference.reference_doctype,
-						"reference_name": reference.reference_name,
-						"total_amount": reference.amount,
-						"allocated_amount": reference.amount,
-					},
-				)
+				if reference.payment_request:
+					net_amount = frappe.db.get_value("Payment Request", reference.payment_request, "net_total")
+					pe.append(
+						"references",
+						{
+							"reference_doctype": reference.reference_doctype,
+							"reference_name": reference.reference_name,
+							"total_amount": net_amount,
+							"allocated_amount": net_amount,
+						},
+					)
+				else:
+					pe.append(
+						"references",
+						{
+							"reference_doctype": reference.reference_doctype,
+							"reference_name": reference.reference_name,
+							"total_amount": reference.amount,
+							"allocated_amount": reference.amount,
+						},
+					)
 
 		pe.update(
 			{
