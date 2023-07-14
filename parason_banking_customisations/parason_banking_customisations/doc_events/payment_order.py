@@ -206,13 +206,10 @@ def make_payment_entries(docname):
 	# 	ref_doc = frappe.get_doc(doc.reference_doctype, doc.reference_name)
 	# party_account = frappe.db.get_value("Payment Request Type", doc.payment_type, "account_paid_to")
 	is_advance_payment = "Yes"
-	is_adhoc = 0
 
 	for ref in payment_order_doc.references:
 		if ref.reference_doctype == "Purchase Invoice":
 			is_advance_payment = "No"
-		if ref.is_adhoc:
-			is_adhoc = 1
 		
 
 
@@ -241,32 +238,31 @@ def make_payment_entries(docname):
 		pe.received_amount = row.amount
 		pe.letter_head = frappe.db.get_value("Letter Head", {"is_default": 1}, "name")
 
-
-		apply_tds = 0
-		tds_cateogry = None
-		if not is_adhoc:
+		if is_advance_payment == "Yes":
+			apply_tds = 0
+			tds_cateogry = None
+			net_total = 0
 			for reference in payment_order_doc.references:
-				if reference.supplier == row.supplier and reference.plant == row.plant:
-					if reference.reference_doctype and reference.reference_name:
-						apply_tds = frappe.db.get_value(reference.reference_doctype, reference.reference_name, "apply_tds")
-						tds_cateogry = frappe.db.get_value(reference.reference_doctype, reference.reference_name, "tax_withholding_category")
-					pe.append(
-						"references",
-						{
-							"reference_doctype": reference.reference_doctype,
-							"reference_name": reference.reference_name,
-							"total_amount": reference.amount,
-							"allocated_amount": reference.amount,
-						},
-					)
-		else:
-			for reference in payment_order_doc.references:
-				apply_tds = frappe.db.get_value("Payment Request", reference.payment_request, "apply_tax_withholding_amount")
-				tds_cateogry = frappe.db.get_value("Payment Request", reference.payment_request, "tax_withholding_category")
-		
-		if apply_tds and tds_cateogry:
+				if reference.supplier == row.supplier and reference.plant == row.plant and reference.payment_request:
+					apply_tds = frappe.db.get_value("Payment Request", reference.payment_request, "apply_tax_withholding_amount")
+					tds_cateogry = frappe.db.get_value("Payment Request", reference.payment_request, "tax_withholding_category")
+					net_total += frappe.db.get_value("Payment Request", reference.payment_request, net_total)
+			pe.paid_amount = net_total
+			pe.received_amount = net_total
 			pe.apply_tax_withholding_amount = apply_tds
 			pe.tax_withholding_category = tds_cateogry
+
+		for reference in payment_order_doc.references:
+			if reference.supplier == row.supplier and reference.plant == row.plant and not reference.is_adhoc:
+				pe.append(
+					"references",
+					{
+						"reference_doctype": reference.reference_doctype,
+						"reference_name": reference.reference_name,
+						"total_amount": reference.amount,
+						"allocated_amount": reference.amount,
+					},
+				)
 
 		pe.update(
 			{
