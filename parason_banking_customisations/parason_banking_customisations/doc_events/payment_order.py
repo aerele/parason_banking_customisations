@@ -246,7 +246,7 @@ def make_payment_entries(docname):
 				if reference.supplier == row.supplier and reference.plant == row.plant and reference.payment_request:
 					apply_tds = frappe.db.get_value("Payment Request", reference.payment_request, "apply_tax_withholding_amount")
 					tds_cateogry = frappe.db.get_value("Payment Request", reference.payment_request, "tax_withholding_category")
-					net_total += frappe.db.get_value("Payment Request", reference.payment_request, net_total)
+					net_total += frappe.db.get_value("Payment Request", reference.payment_request, "net_total")
 			pe.paid_amount = net_total
 			pe.received_amount = net_total
 			pe.apply_tax_withholding_amount = apply_tds
