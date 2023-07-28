@@ -45,7 +45,7 @@ frappe.ui.form.on('Payment Order', {
 						docstatus: 1,
 						on_hold: ["!=", 1],
 						due_date : ["<=", frm.doc.posting_date],
-						outstanding: [">", 0]
+						outstanding_amount: [">", 0]
 					}
 				});
 			}, __("Get from"));
