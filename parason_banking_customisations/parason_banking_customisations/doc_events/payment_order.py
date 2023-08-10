@@ -116,7 +116,7 @@ def validate_summary(self, method):
 def check_payment_status(docname):
 	payment_order_doc = frappe.get_doc("Payment Order", docname)
 	for i in payment_order_doc.summary:
-		if i.payment_initiated:
+		if i.payment_initiated and i.payment_status in ["Pending", "Initiated"]:
 			get_payment_status(i, payment_order_doc.company_bank_account)
 	payment_order_doc.reload()
 

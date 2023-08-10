@@ -93,6 +93,8 @@ frappe.ui.form.on('Payment Order', {
 						args: {
 							docname: frm.doc.name,
 						},
+						freeze: true,
+						freeze_message: "Updating the payment status...",
 						callback: function(r) {
 							frm.reload_doc();
 						}
