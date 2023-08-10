@@ -87,17 +87,18 @@ frappe.ui.form.on('Payment Order', {
 				}
 			}
 			if (initiated_payments > 1) {
-				frappe.call({
-					method: "parason_banking_customisations.parason_banking_customisations.doc_events.payment_order.check_payment_status",
-					args: {
-						docname: frm.doc.name,
-					},
-					callback: function(r) {
-						frm.reload_doc();
-					}
+				frm.add_custom_button(__('Get Status'), function() {
+					frappe.call({
+						method: "parason_banking_customisations.parason_banking_customisations.doc_events.payment_order.check_payment_status",
+						args: {
+							docname: frm.doc.name,
+						},
+						callback: function(r) {
+							frm.reload_doc();
+						}
+					});
 				});
 			}
-
 		}
 
 	},
