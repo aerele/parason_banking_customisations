@@ -76,6 +76,7 @@ def process_payment(payment_info, company_bank_account, invoices = None):
 		decrypted_text = decrypt_data(response_json["TransferPaymentResponse"]["TransferPaymentResponseBodyEncrypted"], bytearray(key_byte_list))
 		request_log.response = decrypted_text
 		request_log.status = response.status_code
+		request_log.docstaus = 1
 		request_log.insert()
 
 		if response.status_code not in [201, 200]:
