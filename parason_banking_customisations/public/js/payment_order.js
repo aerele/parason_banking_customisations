@@ -79,6 +79,26 @@ frappe.ui.form.on('Payment Order', {
 				}
 			}
 		}
+		if(frm.doc.docstatus===1 && frm.has_perm('write') && 'summary' in frm.doc) {
+			var initiated_payments = 0;
+			for(var j = 0; j < frm.doc.summary.length; j++) {
+				if (frm.doc.summary[j].payment_initiated) {
+					initiated_payments += 1
+				}
+			}
+			if (initiated_payments > 1) {
+				frappe.call({
+					method: "parason_banking_customisations.parason_banking_customisations.doc_events.payment_order.check_payment_status",
+					args: {
+						docname: frm.doc.name,
+					},
+					callback: function(r) {
+						frm.reload_doc();
+					}
+				});
+			}
+
+		}
 
 	},
 	after_workflow_action(frm) {

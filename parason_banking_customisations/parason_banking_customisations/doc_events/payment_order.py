@@ -2,7 +2,7 @@ import frappe
 from frappe.utils import nowdate
 import json
 import uuid
-from parason_banking_customisations.parason_banking_customisations.payments.payment import process_payment
+from parason_banking_customisations.parason_banking_customisations.payments.payment import process_payment, get_payment_status
 
 
 @frappe.whitelist()
@@ -112,6 +112,13 @@ def validate_summary(self, method):
 	if summary_total != references_total:
 		frappe.throw("Summary isn't matching the references")
 
+@frappe.whitelist()
+def check_payment_status(docname):
+	payment_order_doc = frappe.get_doc("Payment Order", docname)
+	for i in payment_order_doc.summary:
+		if i.payment_initiated:
+			get_payment_status(i, payment_order_doc.company_bank_account)
+	payment_order_doc.reload()
 
 @frappe.whitelist()
 def make_bank_payment(docname):
@@ -123,6 +130,7 @@ def make_bank_payment(docname):
 			payment_status = process_payment(i, payment_order_doc.company_bank_account, invoices=invoices)
 			if payment_status:
 				frappe.db.set_value("Payment Order Summary", i.name, "payment_initiated", 1)
+				frappe.db.set_value("Payment Order Summary", i.name, "payment_status", "Initiated")
 				count += 1
 
 	payment_order_doc.reload()
