@@ -86,7 +86,7 @@ frappe.ui.form.on('Payment Order', {
 					initiated_payments += 1
 				}
 			}
-			if (initiated_payments > 1) {
+			if (initiated_payments > 0) {
 				frm.add_custom_button(__('Get Status'), function() {
 					frappe.call({
 						method: "parason_banking_customisations.parason_banking_customisations.doc_events.payment_order.check_payment_status",
