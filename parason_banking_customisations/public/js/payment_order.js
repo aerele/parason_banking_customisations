@@ -44,7 +44,6 @@ frappe.ui.form.on('Payment Order', {
 					get_query_filters: {
 						docstatus: 1,
 						on_hold: ["!=", 1],
-						due_date : ["<=", frm.doc.posting_date],
 						outstanding_amount: [">", 0]
 					}
 				});
