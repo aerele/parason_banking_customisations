@@ -115,10 +115,18 @@ def validate_summary(self, method):
 @frappe.whitelist()
 def check_payment_status(docname):
 	payment_order_doc = frappe.get_doc("Payment Order", docname)
+	if payment_order_doc.docstatus != 1:
+		return
 	for i in payment_order_doc.summary:
 		if i.payment_initiated and i.payment_status in ["Pending", "Initiated"]:
 			get_payment_status(i, payment_order_doc.company_bank_account)
 	payment_order_doc.reload()
+
+@frappe.whitelist()
+def check_payment_status_bulk(names):
+	docnames = json.loads(names)
+	for docname in docnames:
+		check_payment_status(docname)
 
 @frappe.whitelist()
 def make_bank_payment(docname):
