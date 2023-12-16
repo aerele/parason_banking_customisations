@@ -209,3 +209,13 @@ doc_events = {
 # auth_hooks = [
 #	"parason_banking_customisations.auth.validate"
 # ]
+
+fixtures = [
+    {"dt": "Custom Field", "filters": [
+        [
+            "name", "in", [
+                "Payment Request-custom_account_paid_to"
+            ]
+        ]
+    ]}
+]

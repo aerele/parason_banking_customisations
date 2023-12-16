@@ -33,7 +33,18 @@ frappe.ui.form.on('Payment Request', {
 				};
 			});
 		}
-	}
+		frm.events.supplier_advance_account(frm)
+	},
+	onload: (frm) => {
+		frm.events.supplier_advance_account(frm)
+	},
+	supplier_advance_account: (frm) => {
+        frappe.call('parason_banking_customisations.frappe_call.supplier_advance_account', {
+            supplier: frm.doc.party
+        }).then(r => {
+            frm.set_value("custom_account_paid_to", r.message)
+        })
+    }
 });
 
 var get_bank_query_conditions = function(frm) {

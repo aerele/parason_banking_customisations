@@ -16,8 +16,16 @@ def make_payment_order(source_name, target_doc=None):
 	def set_missing_values(source, target):
 		target.payment_order_type = "Payment Request"
 		account = ""
-		if source.payment_type:
+		#customize code to fetch account from payment request
+		if source.custom_account_paid_to:
+			account = source.custom_account_paid_to
+		else:
 			account = frappe.db.get_value("Payment Type", source.payment_type, "account")
+		#end
+
+		# if source.payment_type:
+		# 	account = frappe.db.get_value("Payment Type", source.payment_type, "account")
+
 		target.append(
 			"references",
 			{

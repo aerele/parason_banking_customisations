@@ -738,7 +738,23 @@
    "property_type": "Check",
    "row_name": null,
    "value": "0"
-  }
+  },
+  {
+  "default_value": null,
+  "doc_type": "Payment Order",
+  "docstatus": 0,
+  "doctype": "Property Setter",
+  "doctype_or_field": "DocField",
+  "field_name": "company_bank_account",
+  "is_system_generated": 0,
+  "modified": "2023-11-02 13:12:34.048076",
+  "module": null,
+  "name": "Payment Order-company_bank_account-default",
+  "property": "default",
+  "property_type": "Text",
+  "row_name": null,
+  "value": "Axis Bank-9731 - AXIS BANK LIMITED"
+ }
  ],
  "sync_on_migrate": 1
 }
