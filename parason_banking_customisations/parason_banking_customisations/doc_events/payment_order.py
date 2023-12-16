@@ -153,13 +153,15 @@ def get_invoice_details(po_doc, summary_doc):
 		if ref.supplier == supplier and ref.plant == plant:
 			amount += ref.amount
 			if ref.reference_doctype and ref.reference_name and ref.reference_doctype == "Purchase Invoice":
+				bill_no = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "bill_no")
+				bill_date = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "bill_date")
 				posting_date = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "posting_date")
 				base_grand_total = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "base_grand_total")
 				base_taxes_and_charges_deducted = frappe.db.get_value(ref.reference_doctype, ref.reference_name, "base_taxes_and_charges_deducted")
 				invoices.append({
 					"netAmount": str(ref.amount),
-					"invoiceNumber": str(ref.reference_name),
-					"invoiceDate": str(posting_date),
+					"invoiceNumber": str(bill_no) if bill_no else str(ref.reference_name),
+					"invoiceDate": str(bill_date) if bill_date else str(posting_date),
 					"tax": str(-base_taxes_and_charges_deducted if base_taxes_and_charges_deducted else 0),
 					"invoiceAmount": str((base_grand_total + base_taxes_and_charges_deducted) if base_taxes_and_charges_deducted else base_grand_total)
 				})
