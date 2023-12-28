@@ -35,9 +35,9 @@ frappe.ui.form.on('Payment Request', {
 		}
 		frm.events.supplier_advance_account(frm)
 	},
-	onload: (frm) => {
-		frm.events.supplier_advance_account(frm)
-	},
+	// onload: (frm) => {
+	// 	frm.events.supplier_advance_account(frm)
+	// },
 	supplier_advance_account: (frm) => {
         frappe.call('parason_banking_customisations.frappe_call.supplier_advance_account', {
             supplier: frm.doc.party
