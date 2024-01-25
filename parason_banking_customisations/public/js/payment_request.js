@@ -33,7 +33,9 @@ frappe.ui.form.on('Payment Request', {
 				};
 			});
 		}
-		frm.events.supplier_advance_account(frm)
+		if(frm.doc.party_type == "Supplier"){
+			frm.events.supplier_advance_account(frm)
+		}
 	},
 	// onload: (frm) => {
 	// 	frm.events.supplier_advance_account(frm)

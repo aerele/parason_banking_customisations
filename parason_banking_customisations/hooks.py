@@ -214,7 +214,7 @@ fixtures = [
     {"dt": "Custom Field", "filters": [
         [
             "name", "in", [
-                "Payment Request-custom_account_paid_to"
+                "Payment Request-custom_account_paid_to", "Address-custom_additional_emails"
             ]
         ]
     ]}

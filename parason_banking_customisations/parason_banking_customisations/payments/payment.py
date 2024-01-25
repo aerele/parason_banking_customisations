@@ -110,6 +110,14 @@ def make_request_payload(payment_info, company_bank_account, invoices = None):
 		email_id = billing_address.email_id
 		phone = billing_address.phone
 
+		#update additional email
+		if billing_address.custom_additional_emails:
+			if email_id:
+				additional_email = ";"+ billing_address.custom_additional_emails
+				email_id += additional_email
+			else:
+				email_id = billing_address.custom_additional_emails
+
 	return {
 	"TransferPaymentRequest": {
 		"SubHeader": {

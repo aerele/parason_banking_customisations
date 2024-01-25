@@ -281,6 +281,7 @@ def make_payment_entries(docname):
 							"reference_name": reference.reference_name,
 							"total_amount": net_amount,
 							"allocated_amount": net_amount,
+							"outstanding_amount": net_amount
 						},
 					)
 				else:
@@ -291,6 +292,7 @@ def make_payment_entries(docname):
 							"reference_name": reference.reference_name,
 							"total_amount": reference.amount,
 							"allocated_amount": reference.amount,
+							"outstanding_amount": reference.amount
 						},
 					)
 
